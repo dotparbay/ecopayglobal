@@ -32,6 +32,25 @@ dependencies:
     sdk: flutter
 
 
+  bip39: ^1.0.6
+  solana: ^0.29.1
+  http: ^0.13.3
+  url_launcher: ^6.1.11
+  flutter_secure_storage: ^8.0.0
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^3.2.0
+  uuid: ^3.0.7
+  flutter_svg: ^2.0.7
+  share_plus: ^7.0.2
+  objectbox: ^2.1.0
+  objectbox_flutter_libs: any
+  flutter_launcher_icons: ^0.13.1
+  flutter_riverpod: ^2.3.6
+  riverpod_annotation: ^2.1.1
+  riverpod_generator: ^2.2.3
+  path_provider: ^2.0.15
+  path: ^1.8.3
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -40,12 +59,17 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  build_runner: ^2.4.5
+  objectbox_generator: any
+
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  custom_lint: ^0.4.0
+  riverpod_lint: ^1.3.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
