@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../blockchain.dart';
+import '../localstorage.dart';
 
 class Recive extends StatelessWidget {
   const Recive({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class Recive extends StatelessWidget {
   Widget build(BuildContext context) {
     // removeBalance();
     // removeHistory();
+    // removeWhitelist();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recive'),

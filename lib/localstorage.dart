@@ -17,16 +17,12 @@ Future<void> initMnemonic() async {
   String? mnemonic = await storage.read(key: 'mnemonic');
 
   if (mnemonic == null) {
-    print("init mnemonic new");
     mnemonic = bip39.generateMnemonic();
     await storage.write(
       key: 'mnemonic',
       value: mnemonic,
     );
   }
-
-  print("init mnemonic");
-  // print(mnemonic);
 }
 
 Future<String?> readFlutterSecureStorage({required String key}) async {
@@ -54,10 +50,7 @@ void saveTokenAccount(TokenAccount tokenAccount) {
 
   try {
     tokenAccountBox.put(tokenAccount);
-  } on UniqueViolationException catch (e) {
-    print("UniqueViolationException");
-    print(e);
-  }
+  } on UniqueViolationException catch (e) {}
 }
 
 TokenAccount? loadTokenAccount(String mint) {
@@ -85,28 +78,21 @@ void removeTokenAccount() {
   tokenAccountBox.removeAll();
 }
 
-void saveTokenAccountBalance(TokenAccountBalance tokenAccountBalance) async {
+void saveTokenAccountBalance(TokenAccountBalance tokenAccountBalance) {
   final tokenAccountBalanceBox = Box<TokenAccountBalance>(store);
 
-  print("saveTokenAccount");
   Query<TokenAccountBalance> query = tokenAccountBalanceBox
       .query(TokenAccountBalance_.pubkey.equals(tokenAccountBalance.pubkey!))
       .build();
   final tokenAccountBalanceList = query.find();
-  print("tokenAccountBalanceList.length");
-  print(tokenAccountBalanceList.length);
   if (tokenAccountBalanceList.isNotEmpty) {
     tokenAccountBalance.id = tokenAccountBalanceList.first.id;
-    print(tokenAccountBalance.id);
   }
   query.close();
 
   try {
     tokenAccountBalanceBox.put(tokenAccountBalance);
-  } on UniqueViolationException catch (e) {
-    print("UniqueViolationException");
-    print(e);
-  }
+  } on UniqueViolationException catch (e) {}
 }
 
 TokenAccountBalance? loadTokenAccountBalance(String pubkey) {
@@ -135,18 +121,12 @@ void removeTokenAccountBalance() {
   tokenAccountBalanceBox.removeAll();
 }
 
-Future<void> saveTransactionInfo(TransactionInfo transactionInfo) async {
+void saveTransactionInfo(TransactionInfo transactionInfo) {
   final transactionInfoBox = Box<TransactionInfo>(store);
-
-  print(transactionInfo.err);
-  print(transactionInfo.transactionDetails);
 
   try {
     transactionInfoBox.put(transactionInfo);
-  } on UniqueViolationException catch (e) {
-    print("UniqueViolationException");
-    print(e);
-  }
+  } on UniqueViolationException catch (e) {}
 }
 
 bool isSameSignature(String signature) {
@@ -167,8 +147,30 @@ List<TransactionInfo> loadTransactionInfoList() {
   return transactions;
 }
 
-Future<void> removeTransactionInfo() async {
+void removeTransactionInfo() {
   final transactionInfoBox = Box<TransactionInfo>(store);
 
   transactionInfoBox.removeAll();
+}
+
+void saveWhitelist(Whitelist whitelist) {
+  final whitelistBox = Box<Whitelist>(store);
+
+  try {
+    whitelistBox.put(whitelist);
+  } on UniqueViolationException catch (e) {}
+}
+
+bool isSameWhitelist(String pubkey) {
+  final whitelistBox = Box<Whitelist>(store);
+
+  final query = whitelistBox.query(Whitelist_.pubkey.equals(pubkey)).build();
+
+  return query.find().isNotEmpty;
+}
+
+void removeWhitelist() {
+  final whitelistBox = Box<Whitelist>(store);
+
+  whitelistBox.removeAll();
 }

@@ -85,18 +85,15 @@ String getUSDTBalance() {
 }
 
 void removeBalance() {
-  print("removeBalance");
   removeTokenAccount();
   removeTokenAccountBalance();
 }
 
 void removeHistory() {
-  print("removeHistory");
   removeTransactionInfo();
 }
 
 Future<String> fetchSolBalance() async {
-  print("fetchSolBalance");
   final source = await getKeypair();
   final random = Random();
   final rpcurl = rpcurlList[random.nextInt(rpcurlList.length)];
@@ -116,7 +113,6 @@ Future<String> fetchSolBalance() async {
 }
 
 Future<String> fetchUSDTBalance() async {
-  print("fetchUSDTBalance");
   final tokenAccount = loadTokenAccount(USDT);
   if (tokenAccount == null) {
     fetchTokenAccount();
@@ -144,7 +140,6 @@ Future<void> fetchTokenAccount() async {
   final source = await getKeypair();
   final random = Random();
   final rpcurl = rpcurlList[random.nextInt(rpcurlList.length)];
-  print(rpcurl);
   final rpcClient = RpcClient(rpcurl);
 
   final accounts = await rpcClient.getTokenAccountsByOwner(
@@ -167,7 +162,6 @@ Future<void> fetchTokenAccount() async {
 Future<TokenAccountBalance> fetchTokenAccountBalance(String pubkey) async {
   final random = Random();
   final rpcurl = rpcurlList[random.nextInt(rpcurlList.length)];
-  print(rpcurl);
   final rpcClient = RpcClient(rpcurl);
 
   final tokenAmountResult = await rpcClient.getTokenAccountBalance(
@@ -185,8 +179,6 @@ Future<TokenAccountBalance> fetchTokenAccountBalance(String pubkey) async {
 }
 
 Future<void> fetchHistory() async {
-  print("fetchHistory");
-
   fetchReceivedHistory();
   fetchSendHistory();
 }
@@ -211,10 +203,7 @@ Future<void> fetchSendHistory() async {
 }
 
 bool isFetchingTransaction(String signature) {
-  print("fetchingTransactionList.length");
-  print(fetchingTransactionList.length);
   if (fetchingTransactionList.length > 5) {
-    print(fetchingTransactionList.first);
     fetchingTransactionList.removeAt(0);
   }
   if (fetchingTransactionList.contains(signature)) {
@@ -233,27 +222,17 @@ bool isFetchedTransaction(String signature) {
 }
 
 Future<void> fetchTransactions(String pubKey) async {
-  print("fetchTransactions");
-  print(pubKey);
-
   final transactionSignatureInformationList =
       await fetchSignaturesForAddress(pubKey);
 
   await Future.forEach(
     transactionSignatureInformationList,
     (transactionSignatureInformation) async {
-      print(transactionSignatureInformationList.length);
-      print(transactionSignatureInformation.signature);
-      print("fetch 10 transactionSignatureInformation");
       await Future.delayed(Duration(seconds: Random().nextInt(10) + 10));
       if (isFetchingTransaction(transactionSignatureInformation.signature)) {
-        print("isFetchingTransaction");
-        print(transactionSignatureInformation.signature);
         return;
       }
       if (isFetchedTransaction(transactionSignatureInformation.signature)) {
-        print("isFetchedTransaction");
-        print(transactionSignatureInformation.signature);
         return;
       }
       Map<String, String> transactionDetailMap = {};
@@ -263,13 +242,9 @@ Future<void> fetchTransactions(String pubKey) async {
 
       if (transactionSignatureInformation.confirmationStatus !=
           Commitment.finalized) {
-        // print(
-        //     "transactionSignatureInformationList[i].confirmationStatus != Commitment.finalized");
-        // print(transactionSignatureInformationList[i].confirmationStatus);
         return;
       }
 
-      print("rpcClient.getTransaction");
       final transactionDetail = await rpcClient.getTransaction(
         transactionSignatureInformation.signature,
       );
@@ -282,15 +257,10 @@ Future<void> fetchTransactions(String pubKey) async {
         saveTransactionInfo(transactionInfo);
         return;
       }
-      // print(transactionSignatureInformationList[i].signature);
-      // print(transactionDetail.blockTime);
 
       final parsedTransaction =
           transactionDetail.transaction as ParsedTransaction;
       if (parsedTransaction.message.instructions.isEmpty) {
-        print("parsedTransaction.message.instructions.isEmpty");
-        // print(parsedTransaction.message.instructions.isEmpty);
-        // print(parsedTransaction.message.instructions);
         final transactionInfo = TransactionInfo(
           signature: transactionSignatureInformation.signature,
         );
@@ -300,18 +270,10 @@ Future<void> fetchTransactions(String pubKey) async {
       }
       final rawInstruction =
           parsedTransaction.message.instructions.first as RawInstruction;
-      // print(rawInstruction);
-      // print(parsedTransaction
-      //     .message.accountKeys[rawInstruction.programIdIndex].pubkey);
 
       final programIdIndex = parsedTransaction
           .message.accountKeys[rawInstruction.programIdIndex].pubkey;
-      // print(programIdIndex);
-      // print(TokenProgram.id.toBase58());
       if (programIdIndex != TokenProgram.id.toBase58()) {
-        print("programIdIndex != TokenProgram.id.toBase58()");
-        print(programIdIndex);
-        print(TokenProgram.id.toBase58());
         final transactionInfo = TransactionInfo(
           signature: transactionSignatureInformation.signature,
         );
@@ -325,10 +287,6 @@ Future<void> fetchTransactions(String pubKey) async {
       final instructionIndex = rawInstructionData.first;
       final amount = rawInstructionData.sublist(1);
       if (transferInstructionIndex.toList().first != instructionIndex) {
-        print("transferInstructionIndex.toList().first != instructionIndex");
-        // print(transferInstructionIndex.toList().first);
-        // print(instructionIndex);
-
         final transactionInfo = TransactionInfo(
           signature: transactionSignatureInformation.signature,
         );
@@ -339,7 +297,6 @@ Future<void> fetchTransactions(String pubKey) async {
       Uint8List uintList = Uint8List.fromList(amount);
       int decimalValue =
           ByteData.view(uintList.buffer).getInt64(0, Endian.little);
-      // print(decimalValue);
       transactionDetailMap['from'] = parsedTransaction
           .message.accountKeys[rawInstruction.accounts[0]].pubkey;
       transactionDetailMap['to'] = parsedTransaction
@@ -577,23 +534,16 @@ Future<String> createAssociatedTokenAccount({
 }
 
 Future<void> convertUSDT() async {
-  print('convertUSDT');
   final sol = getSOLBalance();
 
-  print('solBalance');
-  print(sol);
   final solBalance = double.parse(sol);
-  print('solBalance');
-  print(solBalance);
 
   if (solBalance < 0.01) {
-    print('solBalance < 0.01');
     return;
   }
 
   final swapAmount = solBalance - 0.01;
   final amount = swapAmount * lamportsPerSol;
-  print(amount.toInt().toString());
 
   swapToken(
       inputMint: SOL,
@@ -619,7 +569,6 @@ Future<String> swapToken(
     required String amount,
     required String slippageBps,
     SignatureCallback? onSigned}) async {
-  print('swapToken');
   final random = Random();
   var rpcurl = rpcurlList[random.nextInt(rpcurlList.length)];
   final rpcClient = RpcClient(rpcurl);
@@ -629,15 +578,7 @@ Future<String> swapToken(
   var data = await http.get(Uri.parse(
       'https://quote-api.jup.ag/v4/quote?inputMint=$inputMint&outputMint=$outputMint&amount=$amount&slippageBps=$slippageBps'));
   final routes = jsonDecode(data.body);
-  print(routes);
   final route = routes['data'][0];
-
-  print('Response status: ${data.statusCode}');
-  print('Response body: ${data.body}');
-
-  print(route);
-  print("owner.publicKey");
-  print(owner.publicKey);
 
   Map<String, String>? headers = {'Content-Type': 'application/json'};
   final body = jsonEncode({
@@ -651,26 +592,16 @@ Future<String> swapToken(
     headers: headers,
     body: body,
   );
-  print('Response status: ${transactions.statusCode}');
-  print('Response body: ${transactions.body}');
 
   final transactionMap = jsonDecode(transactions.body);
-  print('swapTransaction: ${transactionMap['swapTransaction']}');
 
   Uint8List uint8ListSwapTransaction =
       base64.decode(transactionMap['swapTransaction']);
-  print('swapTransaction: ${uint8ListSwapTransaction}');
 
   final messageV0 = versionedTransactionDeserialize(
       swapTransaction: uint8ListSwapTransaction);
 
-  print('messageV0.addressTableLookups');
-  print(messageV0.addressTableLookups);
-
   final signers = [owner];
-
-  print("messageV0.requiredSignatureCount");
-  print(messageV0.requiredSignatureCount);
 
   final List<Signature> signatures = await Future.wait(
     signers.map((signer) => signer.sign(messageV0.toByteArray())),
@@ -742,49 +673,25 @@ CompiledMessageV0 versionedTransactionDeserialize({
   List<Uint8List> signatures = [];
   final signaturesLength =
       decodeLength(swapTransaction: swapTransaction.sublist(cur));
-  print('signaturesLength');
-  print(signaturesLength);
-  print(cur);
   cur++;
   for (var i = 0; i < signaturesLength; i++) {
     signatures
         .add(swapTransaction.sublist(cur, cur + SIGNATURE_LENGTH_IN_BYTES));
     cur = cur + SIGNATURE_LENGTH_IN_BYTES;
   }
-  print('signatures');
-  print(signatures);
-  print(cur);
-  print('swapTransaction[signaturesLength * SIGNATURE_LENGTH_IN_BYTES]');
-  print(swapTransaction[signaturesLength * SIGNATURE_LENGTH_IN_BYTES]);
 
   final prefix = swapTransaction[cur];
   final maskedPrefix = (prefix & VERSION_PREFIX_MASK);
 
-  print('VERSION_PREFIX_MASK');
-  print(VERSION_PREFIX_MASK);
-  print('maskedPrefix');
-  print(maskedPrefix);
-  print('prefix');
-  print(prefix);
-  print(cur);
   cur++;
 
   final numRequiredSignatures = swapTransaction[cur];
-  print('numRequiredSignatures');
-  print(numRequiredSignatures);
-  print(cur);
   cur++;
 
   final numReadonlySignedAccounts = swapTransaction[cur];
-  print('numReadonlySignedAccounts');
-  print(numReadonlySignedAccounts);
-  print(cur);
   cur++;
 
   final numReadonlyUnsignedAccounts = swapTransaction[cur];
-  print('numReadonlyUnsignedAccounts');
-  print(numReadonlyUnsignedAccounts);
-  print(cur);
   cur++;
 
   final header = MessageHeader(
@@ -796,9 +703,6 @@ CompiledMessageV0 versionedTransactionDeserialize({
   List<Ed25519HDPublicKey> staticAccountKeys = [];
   final staticAccountKeysLength =
       decodeLength(swapTransaction: swapTransaction.sublist(cur));
-  print('staticAccountKeysLength');
-  print(staticAccountKeysLength);
-  print(cur);
   cur++;
 
   for (var i = 0; i < staticAccountKeysLength; i++) {
@@ -806,24 +710,14 @@ CompiledMessageV0 versionedTransactionDeserialize({
         swapTransaction.sublist(cur, cur + PUBLIC_KEY_LENGTH)));
     cur = cur + PUBLIC_KEY_LENGTH;
   }
-  print('staticAccountKeys');
-  print(staticAccountKeys);
-  print(cur);
 
   final recentBlockhash =
       base58encode(swapTransaction.sublist(cur, cur + PUBLIC_KEY_LENGTH));
   cur = cur + PUBLIC_KEY_LENGTH;
 
-  print('recentBlockhash');
-  print(recentBlockhash);
-  print(cur);
-
   final instructionCount =
       decodeLength(swapTransaction: swapTransaction.sublist(cur));
 
-  print('instructionCount');
-  print(instructionCount);
-  print(cur);
   cur++;
 
   List<CompiledInstruction> compiledInstructions = [];
@@ -842,12 +736,6 @@ CompiledMessageV0 versionedTransactionDeserialize({
     final data = ByteArray(swapTransaction.sublist(cur, cur + dataLength));
     cur = cur + dataLength;
 
-    print('programIdIndex');
-    print(programIdIndex);
-    print('accountKeyIndexes');
-    print(accountKeyIndexes);
-    print('data');
-    print(data);
     compiledInstructions.add(
       CompiledInstruction(
           programIdIndex: programIdIndex,
@@ -858,8 +746,6 @@ CompiledMessageV0 versionedTransactionDeserialize({
 
   final addressTableLookupsCount =
       decodeLength(swapTransaction: swapTransaction.sublist(cur));
-  print('addressTableLookupsCount');
-  print(addressTableLookupsCount);
   cur++;
 
   List<MessageAddressTableLookup> addressTableLookups = [];
@@ -881,12 +767,6 @@ CompiledMessageV0 versionedTransactionDeserialize({
         swapTransaction.sublist(cur, cur + readonlyIndexesLength);
     cur = cur + readonlyIndexesLength;
 
-    print('MessageAddressTableLookup accountKey');
-    print(accountKey);
-    print('writableIndexes');
-    print(writableIndexes);
-    print('readonlyIndexes');
-    print(readonlyIndexes);
     addressTableLookups.add(
       MessageAddressTableLookup(
           accountKey: accountKey,

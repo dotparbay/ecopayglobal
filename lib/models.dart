@@ -85,3 +85,16 @@ class TokenAccountBalance {
   int? decimals;
   String? uiAmountString;
 }
+
+@Entity()
+class Whitelist {
+  Whitelist({
+    this.id = 0,
+    this.pubkey,
+  });
+
+  int id;
+
+  @Unique()
+  String? pubkey;
+}

@@ -10,7 +10,6 @@ part 'provider.g.dart';
 
 enum ViewType { home, pay, recive }
 
-// final baseTabViewProvider = StateProvider<ViewType>((ref) => ViewType.home);
 @riverpod
 class BaseTabView extends _$BaseTabView {
   @override
@@ -23,28 +22,29 @@ class BaseTabView extends _$BaseTabView {
   }
 }
 
-// @riverpod
-// class UpdateProgress extends _$UpdateProgress {
-//   @override
-//   double build() {
-//     return 0.0;
-//   }
+@riverpod
+class UpdateProgress extends _$UpdateProgress {
+  @override
+  Stream<double> build() async* {
+    yield 0;
+  }
 
-//   Future<double> startUpdate() async {
-//     print(startUpdate);
-//     await Future.delayed(const Duration(seconds: 1));
-//     // Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-//     if (state >= 1) {
-//       // timer.cancel();
-//       state = 0.0;
-//     } else {
-//       state = state + 0.1;
-//     }
-//     // });
+  void updateBalanceDelayed() async {
+    updateBalance();
+    state = const AsyncValue.data(0.0);
+    while (state.value! < 1.0) {
+      state = AsyncValue.data(state.value! + 1 / 60);
+      await Future.delayed(const Duration(seconds: 1));
+    }
+  }
 
-//     return state;
-//   }
-// }
+  Future<void> updateBalance() async {
+    await Future.delayed(const Duration(seconds: 45));
+    fetchSolBalance();
+    await Future.delayed(const Duration(seconds: 3));
+    fetchUSDTBalance();
+  }
+}
 
 @riverpod
 class FetchSolBalanceUI extends _$FetchSolBalanceUI {

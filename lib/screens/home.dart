@@ -19,23 +19,16 @@ class Home extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print("fetchHistoryHome");
-    print("convertUSDTHome");
     convertUSDT();
     fetchHistory();
-    // final value = ref.watch(updateProgressProvider);
-    // ref.read(updateProgressProvider.notifier).startUpdate();
     return Scaffold(
       appBar: AppBar(
         title: const Text('home'),
       ),
       body: ListView(
-        children: <Widget>[
-          const Balance(),
-          // LinearProgressIndicator(
-          //   value: value,
-          // ),
-          const History(),
+        children: const <Widget>[
+          Balance(),
+          History(),
         ],
       ),
     );
@@ -97,6 +90,7 @@ class Balance extends StatelessWidget {
                   ],
                 ),
               ),
+              const UpdateBalance(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
@@ -133,6 +127,44 @@ class Balance extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class UpdateBalance extends ConsumerWidget {
+  const UpdateBalance({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(updateProgressProvider).when(
+          loading: () {
+            return IconButton(
+              icon: const Icon(Icons.update),
+              onPressed: () {
+                ref
+                    .read(updateProgressProvider.notifier)
+                    .updateBalanceDelayed();
+              },
+            );
+          },
+          error: (error, stack) => const Text('error'),
+          data: (data) {
+            return Column(
+              children: [
+                LinearProgressIndicator(
+                  value: data,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.update),
+                  onPressed: () {
+                    ref
+                        .read(updateProgressProvider.notifier)
+                        .updateBalanceDelayed();
+                  },
+                ),
+              ],
+            );
+          },
+        );
   }
 }
 

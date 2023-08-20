@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Eco Pay Global',
+      title: 'Open Bank',
       home: BaseTabView(),
     );
   }

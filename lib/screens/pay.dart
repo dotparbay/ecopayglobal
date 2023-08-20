@@ -5,6 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../blockchain.dart' show sendToken;
+import '../localstorage.dart';
+import '../models.dart';
 
 class Pay extends StatelessWidget {
   const Pay({Key? key}) : super(key: key);
@@ -30,7 +32,6 @@ class Pay extends StatelessWidget {
             try {
               codeMap = jsonDecode(code);
             } catch (e) {
-              print(e);
               debugPrint('code not json $code');
               return;
             }
@@ -40,28 +41,68 @@ class Pay extends StatelessWidget {
               return;
             }
 
-            isPaying = true;
-
             final account = codeMap['account'].toString();
             final amount = codeMap['amount'].toString();
             final memo = codeMap['memo']['memo'] == null
                 ? ''
                 : codeMap['memo']['memo'].toString();
 
-            sendToken(account: account, amount: amount, memo: memo)
-                .then((signature) {
-              final Uri url = Uri.parse('https://solscan.io/tx/$signature');
-              launchUrl(url);
-            });
+            // return;
 
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return Payed(account: account, amount: amount, memo: memo);
+            isPaying = true;
+            if (!isSameWhitelist(account)) {
+              await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CustomDialog(
+                    account: account,
+                    amount: amount,
+                    memo: memo,
+                  );
                 },
-              ),
-            );
+              ).then(
+                (isPay) async {
+                  if (!isPay) {
+                    debugPrint('is not Pay $isPay');
+                  } else {
+                    sendToken(account: account, amount: amount, memo: memo)
+                        .then((signature) {
+                      final Uri url =
+                          Uri.parse('https://solscan.io/tx/$signature');
+                      launchUrl(url);
+                    });
+
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return Payed(
+                              account: account, amount: amount, memo: memo);
+                        },
+                      ),
+                    );
+                  }
+                },
+              );
+            } else {
+              debugPrint('is isSameWhitelist!!');
+              sendToken(account: account, amount: amount, memo: memo)
+                  .then((signature) {
+                final Uri url = Uri.parse('https://solscan.io/tx/$signature');
+                launchUrl(url);
+              });
+
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return Payed(account: account, amount: amount, memo: memo);
+                  },
+                ),
+              );
+            }
+
+            debugPrint('is done!!');
             isPaying = false;
           }
         },
@@ -77,9 +118,9 @@ class Payed extends StatelessWidget {
 
   const Payed({
     Key? key,
-    required String this.account,
-    required String this.amount,
-    String this.memo = '',
+    required this.account,
+    required this.amount,
+    this.memo = '',
   }) : super(key: key);
 
   @override
@@ -100,6 +141,79 @@ class Payed extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CustomDialog extends StatefulWidget {
+  final String account;
+  final String amount;
+  final String memo;
+
+  const CustomDialog({
+    Key? key,
+    required this.account,
+    required this.amount,
+    this.memo = '',
+  }) : super(key: key);
+
+  @override
+  _CustomDialogState createState() => _CustomDialogState();
+}
+
+class _CustomDialogState extends State<CustomDialog> {
+  bool _isChecked = false;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Do you want to pay?'),
+      content: Column(
+        children: [
+          Text(
+            widget.account,
+          ),
+          Text(
+            '\$${widget.amount}(USDT)',
+          ),
+          const Divider(),
+          const Text(
+            'Check this address again next time?',
+          ),
+          Row(
+            children: [
+              const Text(
+                'YES',
+              ),
+              Checkbox(
+                value: _isChecked,
+                onChanged: (value) {
+                  setState(() {
+                    _isChecked = value!;
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(false);
+          },
+          child: const Text('CANCEL'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(true);
+            if (!_isChecked) {
+              final whitelist = Whitelist(pubkey: widget.account);
+              saveWhitelist(whitelist);
+            }
+          },
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }
