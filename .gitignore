@@ -1,0 +1,74 @@
+# Flutter/Dart related
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/*.podspec
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+android/app/debug.keystore
+
+# IDE related
+.idea/
+*.iml
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.DS_Store
+*.class
+
+# Miscellaneous
+*.log
+pubspec.lock
+
+# ObjectBox related
+objectbox.g.dart
+objectbox-model.json
+objectbox/
+
+# build_runner generated files
+*.g.dart
+*.freezed.dart
+*.part.g.dart
+
+# flutter_launcher_icons
+web/icons/
+assets/images/icon.png
+
+# flutter_native_splash
+ios/Runner/Assets.xcassets/SplashImage.imageset/
+android/app/src/main/res/drawable/splash.xml
+android/app/src/main/res/drawable-v21/splash.xml
+android/app/src/main/res/values/styles.xml
+
+# Mobile scanner related (if any generated cache or temporary files)
+mobile_scanner_temp/
+
+# Image picker related (if using local cache)
+image_picker_cache/
+
+# Flutter secure storage keys (if storing locally and generated)
+key_info/
+
+# Path provider temp storage (optional, if using temp paths)
+path_provider_cache/
+
+# Other generated assets
+flutter_native_splash.yaml
+flutter_launcher_icons.yaml
+
+# BIP39 mnemonic temp files (if generated)
+mnemonic_temp/
+
+# QR Flutter generated files
+qr_temp/
+
+# Solana SDK cache
+.solana/
