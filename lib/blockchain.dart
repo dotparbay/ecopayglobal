@@ -37,8 +37,8 @@ class SingletonKeypairData {
   late final Ed25519HDKeyPair _keypair;
 
   Future<void> initialize() async {
-    print("SingletonKeypairData initialize");
     _keypair = await _getKeypair();
+
     _isInitialized = true;
   }
 
@@ -59,7 +59,6 @@ class SingletonKeypairData {
 }
 
 // Future<Ed25519HDKeyPair> getKeypair() async {
-//   print(getKeypair);
 //   await SingletonMnemonicData().initialize();
 //   String mnemonic = SingletonMnemonicData().mnemonic;
 //   final keypair =
@@ -600,31 +599,29 @@ Future<String> swapToken(
   final owner = getKeypair();
   const commitment = Commitment.confirmed;
 
-  var data = await http.get(Uri.parse(
-      'https://quote-api.jup.ag/v4/quote?inputMint=$inputMint&outputMint=$outputMint&amount=$amount&slippageBps=$slippageBps'));
-  final routes = jsonDecode(data.body);
-  final route = routes['data'][0];
+  var route = await http.get(Uri.parse(
+      'https://quote-api.jup.ag/v6/quote?inputMint=$inputMint&outputMint=$outputMint&amount=$amount&slippageBps=$slippageBps'));
+  final routeJson = jsonDecode(route.body);
 
-  Map<String, String>? headers = {'Content-Type': 'application/json'};
-  final body = jsonEncode({
-    'route': route,
+  const url = 'https://quote-api.jup.ag/v6/swap';
+  final headers = {'Content-Type': 'application/json'};
+  final payload = {
+    'quoteResponse': routeJson,
     'userPublicKey': owner.publicKey.toBase58(),
-    'wrapUnwrapSOL': true,
-  });
+    'wrapAndUnwrapSol': true,
+  };
 
-  var transactions = await http.post(
-    Uri.parse('https://quote-api.jup.ag/v4/swap'),
-    headers: headers,
-    body: body,
-  );
+  final response = await http.post(Uri.parse(url),
+      headers: headers, body: jsonEncode(payload));
 
-  final transactionMap = jsonDecode(transactions.body);
+  final responseJson = jsonDecode(response.body);
+  final swapTransactionBase64 = responseJson['swapTransaction'];
+  final swapTransactionBytes = base64Decode(swapTransactionBase64);
 
-  Uint8List uint8ListSwapTransaction =
-      base64.decode(transactionMap['swapTransaction']);
+  // final encodedTx = base64Encode(swapTransactionBytes);
 
-  final messageV0 = versionedTransactionDeserialize(
-      swapTransaction: uint8ListSwapTransaction);
+  final messageV0 =
+      versionedTransactionDeserialize(swapTransaction: swapTransactionBytes);
 
   final signers = [owner];
 

@@ -16,7 +16,6 @@ class SingletonObjectboxData {
   late final Store _store;
 
   Future<void> initialize() async {
-    print("SingletonObjectboxData initialize");
     _store = await _initObjectbox();
     _isInitialized = true;
   }
@@ -48,25 +47,20 @@ class SingletonMnemonicData {
   late final String _mnemonic;
 
   Future<void> initialize() async {
-    print("SingletonMnemonicData initialize");
     _mnemonic = await _getMnemonic();
     _isInitialized = true;
   }
 
   Future<String> _getMnemonic() async {
     const storage = FlutterSecureStorage();
-    print("_getMnemonic");
     String? mnemonic = await storage.read(key: 'mnemonic');
     if (mnemonic == null) {
-      print("_getMnemonic mnemonic == null");
       mnemonic = bip39.generateMnemonic();
       await storage.write(
         key: 'mnemonic',
         value: mnemonic,
       );
     }
-    print('_getMnemonic');
-    print(mnemonic);
     return mnemonic;
   }
 
@@ -80,10 +74,8 @@ class SingletonMnemonicData {
 
 Future<String> getMnemonic() async {
   const storage = FlutterSecureStorage();
-  print("_getMnemonic");
   String? mnemonic = await storage.read(key: 'mnemonic');
   if (mnemonic == null) {
-    print("_getMnemonic mnemonic == null");
     mnemonic = bip39.generateMnemonic();
     await storage.write(
       key: 'mnemonic',
