@@ -8,7 +8,7 @@ import 'objectbox.g.dart';
 
 part 'provider.g.dart';
 
-enum MainType { home, pay, recive }
+enum MainType { home, pay, receive }
 
 enum MainStoreType { register, edit, trash, store, payment }
 

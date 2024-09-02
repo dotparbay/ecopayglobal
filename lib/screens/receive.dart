@@ -8,8 +8,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../blockchain.dart';
 import '../localstorage.dart';
 
-class Recive extends StatelessWidget {
-  const Recive({super.key});
+class Receive extends StatelessWidget {
+  const Receive({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class Recive extends StatelessWidget {
     removeWhitelist();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recive'),
+        title: const Text('Receive'),
       ),
       body: const Invoice(),
     );
@@ -120,7 +120,7 @@ class CreateQR extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recive'),
+        title: const Text('Receive'),
       ),
       body: Card(
         child: ListView(

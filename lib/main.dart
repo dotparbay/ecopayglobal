@@ -5,7 +5,7 @@ import 'blockchain.dart';
 import 'screens/home.dart';
 import 'screens/pay.dart';
 import 'provider.dart';
-import 'screens/recive.dart';
+import 'screens/receive.dart';
 
 import 'localstorage.dart';
 
@@ -23,19 +23,27 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Open Bank',
-      home: BaseTabView(),
+      title: 'Eco Pay',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Colors.blueAccent,
+          unselectedItemColor: Colors.grey,
+        ),
+      ),
+      home: const BaseTabView(),
     );
   }
 }
 
 class BaseTabView extends ConsumerWidget {
-  BaseTabView({super.key});
+  const BaseTabView({super.key});
 
-  final widgets = [
-    const Home(),
-    const Pay(),
-    const Recive(),
+  final List<Widget> _widgets = const [
+    Home(),
+    Pay(),
+    Receive(),
   ];
 
   @override
@@ -43,17 +51,26 @@ class BaseTabView extends ConsumerWidget {
     FlutterNativeSplash.remove();
     final view = ref.watch(baseMainTabViewProvider);
     return Scaffold(
-      body: widgets[view.index],
+      body: _widgets[view.index],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.qr_code_scanner), label: 'pay'),
-          BottomNavigationBarItem(icon: Icon(Icons.qr_code), label: 'recive'),
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code_scanner),
+            label: 'Pay',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code),
+            label: 'Receive',
+          ),
         ],
         currentIndex: view.index,
-        onTap: (int index) =>
-            ref.read(baseMainTabViewProvider.notifier).changeType(index),
+        onTap: (int index) {
+          ref.read(baseMainTabViewProvider.notifier).changeType(index);
+        },
         type: BottomNavigationBarType.fixed,
       ),
     );
